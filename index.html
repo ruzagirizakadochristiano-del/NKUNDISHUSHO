@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NKUNDISHUSHO | African Fashion & Style</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body { background: #faf7f0; font-family: 'Inter', system-ui, sans-serif; color: #2c3e2f; }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: radial-gradient(circle at 10% 20%, rgba(212,175,55,0.06) 2%, transparent 2%);
+            background-size: 32px 32px;
+            pointer-events: none;
+            z-index: -1;
+        }
+        .hero-bg { background: linear-gradient(135deg, #1b4d1f 0%, #d4af37 100%); color: #faf7f0; }
+        .hero-bg .btn-outline { border-color: #faf7f0; color: #faf7f0; }
+        .product-card {
+            background: white;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border: 1px solid #e8dfc8;
+        }
+        .product-card:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -12px rgba(0,0,0,0.15); border-color: #d4af37; }
+        .btn-primary { background: #d4af37; transition: all 0.2s; color: #1b4d1f; border-radius: 9999px; font-weight: 600; }
+        .btn-primary:hover { background: #c49a1a; transform: scale(1.02); color: #1b4d1f; }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .btn-outline { border: 1px solid #d4af37; color: #d4af37; background: transparent; border-radius: 9999px; }
+        .status-available { background: #2e7d32; color: white; font-weight: bold; }
+        .status-sold { background: #8b5a2b; color: white; }
+        .info-item { background: #f5efe0; color: #5d4037; padding: 4px 12px; border-radius: 20px; font-size: 13px; }
+        .filter-bar { background: white; border-radius: 1rem; box-shadow: 0 1px 4px rgba(0,0,0,0.05); border: 1px solid #e8dfc8; }
+        nav { background: white; border-bottom: 1px solid #e8dfc8; }
+        input, select, textarea { background: #fffdf8 !important; border-color: #e0d5bd !important; color: #2c3e2f !important; transition: all 0.2s; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #d4af37 !important; box-shadow: 0 0 0 2px rgba(212,175,55,0.2); }
+        .loader-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(250,247,240,0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+        .loader-overlay.hidden { display: none; }
+        .spinner { width: 60px; height: 60px; border: 5px solid #e8dfc8; border-top: 5px solid #d4af37; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .image-preview { width: 80px; height: 80px; object-fit: cover; border-radius: 12px; margin: 4px; border: 2px solid #d4af37; }
+        .detail-image-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px,1fr)); gap: 8px; }
+        .detail-main-img { max-height: 400px; object-fit: contain; }
+        .price-large { font-size: 2rem; font-weight: bold; color: #1b4d1f; }
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            color: #2c3e2f;
+            border-left: 5px solid;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 12px 20px;
+            border-radius: 8px;
+            z-index: 10001;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideIn 0.3s ease;
+        }
+        .notification-success { border-left-color: #2e7d32; }
+        .notification-error { border-left-color: #c62828; }
+        .notification-info { border-left-color: #d4af37; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .existing-image-item { position: relative; display: inline-block; }
+        .remove-image-btn {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #c62828;
+            color: white;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .password-strength { height: 4px; margin-top: 8px; border-radius: 2px; transition: all 0.3s; }
+        .strength-weak { background: #ef5350; width: 33%; }
+        .strength-medium { background: #d4af37; width: 66%; }
+        .strength-strong { background: #2e7d32; width: 100%; }
+        .loading-btn { position: relative; pointer-events: none; opacity: 0.7; }
+        .navbar-contact-icons { display: flex; align-items: center; gap: 8px; margin-left: 10px; padding-left: 12px; border-left: 1px solid #e0d5bd; }
+        .navbar-contact-icons a { color: #5d4037; transition: color 0.2s; display: flex; align-items: center; gap: 4px; font-size: 13px; }
+        .navbar-contact-icons a:hover { color: #d4af37; }
+        .flag-icon { font-size: 1.1rem; line-height: 1; }
+    </style>
+</head>
+<body class="bg-[#faf7f0]">
+
+<div id="globalLoader" class="loader-overlay"><div class="spinner"></div></div>
+<div id="notificationContainer"></div>
+
+<!-- Navbar -->
+<nav class="bg-white shadow-sm px-6 py-4 flex justify-between items-center sticky top-0 z-30 border-b border-[#e8dfc8] flex-wrap gap-4">
+    <div class="flex items-center flex-wrap gap-2">
+        <div class="text-2xl font-bold tracking-tight text-[#1b4d1f]">
+            <i class="fas fa-tshirt text-[#d4af37] mr-2"></i>NKUNDI<span class="text-[#d4af37]">SHUSHO</span>
+        </div>
+        <div class="navbar-contact-icons">
+            <a href="https://www.instagram.com/nkundishusho" target="_blank" title="Instagram"><i class="fab fa-instagram text-pink-500"></i><span class="hidden sm:inline">Instagram</span></a>
+            <span class="text-[#e0d5bd]">|</span>
+            <a href="https://wa.me/250788888888" target="_blank" title="WhatsApp Rwanda"><i class="fab fa-whatsapp text-green-600"></i><span>+250 788 888 888</span><span class="flag-icon">🇷🇼</span></a>
+            <span class="text-[#e0d5bd]">|</span>
+            <a href="mailto:info@nkundishusho.com" title="Email"><i class="fas fa-envelope text-[#d4af37]"></i><span>info@nkundishusho.com</span><span class="flag-icon">🇰🇪</span></a>
+        </div>
+    </div>
+    <div class="flex gap-5 items-center flex-wrap">
+        <button class="nav-btn hover:text-[#d4af37] font-medium text-gray-700" data-nav="home">Home</button>
+        <button class="nav-btn hover:text-[#d4af37] text-gray-700" data-nav="contact">Contact</button>
+        <button class="nav-btn hover:text-[#d4af37] hidden text-gray-700" data-nav="user">My Panel</button>
+        <button class="nav-btn hover:text-[#d4af37] hidden text-gray-700" data-nav="admin">Admin</button>
+        <button id="cartIconBtn" class="relative hover:text-[#d4af37] text-gray-700"><i class="fas fa-shopping-cart text-xl"></i><span id="cartCount" class="absolute -top-2 -right-3 bg-[#d4af37] text-[#1b4d1f] text-xs font-bold rounded-full px-1.5 min-w-[20px] text-center">0</span></button>
+        <button id="registerBtn" class="btn-primary text-[#1b4d1f] px-5 py-1.5 rounded-full text-sm font-semibold">Register</button>
+        <button id="loginBtn" class="border border-[#d4af37] text-[#d4af37] hover:bg-[#d4af37]/10 px-5 py-1.5 rounded-full text-sm">Login</button>
+        <button id="logoutBtn" class="hidden bg-gray-200 hover:bg-gray-300 text-gray-800 px-5 py-1.5 rounded-full text-sm">Logout</button>
+    </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero-bg py-20 md:py-28">
+    <div class="max-w-7xl mx-auto px-6 text-center">
+        <div class="inline-block mb-4 px-4 py-1 bg-[#1b4d1f]/40 text-[#d4af37] rounded-full text-sm uppercase">Celebrate African Fashion</div>
+        <h1 class="text-5xl md:text-7xl font-bold mb-4">Style with <span class="text-[#d4af37]">Confidence</span></h1>
+        <p class="text-xl md:text-2xl text-gray-100 max-w-2xl mx-auto">Discover authentic African-inspired clothing – vibrant, comfortable, and uniquely you.</p>
+        <div class="mt-10 flex justify-center gap-5"><button id="heroShopBtn" class="btn-primary text-[#1b4d1f] px-8 py-3 rounded-full font-semibold text-lg">Shop Now</button><button id="heroExploreBtn" class="btn-outline px-8 py-3 rounded-full font-semibold text-lg">Contact Us</button></div>
+    </div>
+</section>
+
+<!-- Contact Section -->
+<section id="contact-section" class="max-w-4xl mx-auto px-4 py-16 hidden">
+    <div class="bg-white rounded-2xl p-8 shadow-md border border-[#e8dfc8] text-center">
+        <div class="flex justify-center mb-4"><i class="fas fa-address-card text-5xl text-[#d4af37]"></i></div>
+        <h2 class="text-3xl font-bold mb-6 text-[#1b4d1f]">Contact NKUNDISHUSHO</h2>
+        <div class="space-y-4 text-lg">
+            <div class="flex justify-center items-center gap-3 flex-wrap"><i class="fab fa-instagram text-pink-500 text-2xl"></i> <span id="publicInstagramLink" class="text-[#d4af37] break-all"></span></div>
+            <div class="flex justify-center items-center gap-3 flex-wrap"><i class="fab fa-whatsapp text-green-500 text-2xl"></i> <span id="publicPhoneNumber" class="text-[#d4af37]"></span><span class="flag-icon text-xl">🇷🇼</span></div>
+            <div class="flex justify-center items-center gap-3 flex-wrap"><i class="fas fa-envelope text-[#d4af37] text-2xl"></i> <span class="text-[#d4af37]">info@nkundishusho.com</span><span class="flag-icon text-xl">🇰🇪</span></div>
+        </div>
+        <p class="mt-6 text-gray-500 text-sm">We reply within 24 hours. For styling advice, orders, or collaborations.</p>
+    </div>
+</section>
+
+<!-- Filters -->
+<section class="max-w-7xl mx-auto px-4 py-8">
+    <div class="filter-bar p-6">
+        <div class="flex flex-wrap gap-4 items-end">
+            <div class="flex-1 min-w-[200px]"><label class="text-gray-700 text-sm block mb-1">Search products</label><input type="text" id="searchInput" placeholder="Dress, shirt, accessories..." class="w-full bg-gray-50 border border-[#e8dfc8] rounded-lg p-2"></div>
+            <div class="w-48"><label class="text-gray-700 text-sm block mb-1">Sort by</label><select id="sortSelect" class="w-full bg-gray-50 border border-[#e8dfc8] rounded-lg p-2"><option value="default">Default</option><option value="price_asc">Price (Low to High)</option><option value="price_desc">Price (High to Low)</option></select></div>
+            <div class="w-48"><label class="text-gray-700 text-sm block mb-1">Min Price (RWF)</label><input type="number" id="minPrice" placeholder="0" class="w-full bg-gray-50 border border-[#e8dfc8] rounded-lg p-2"></div>
+            <div class="w-48"><label class="text-gray-700 text-sm block mb-1">Max Price (RWF)</label><input type="number" id="maxPrice" placeholder="No max" class="w-full bg-gray-50 border border-[#e8dfc8] rounded-lg p-2"></div>
+            <button id="resetFiltersBtn" class="btn-primary text-[#1b4d1f] px-4 py-2 rounded-lg font-semibold">Reset</button>
+        </div>
+    </div>
+</section>
+
+<!-- Products Grid -->
+<section id="home-section" class="max-w-7xl mx-auto px-4 pb-12">
+    <div class="text-center mb-8"><h2 class="text-4xl font-bold text-[#1b4d1f]">Our <span class="text-[#d4af37]">Collection</span></h2><div class="w-24 h-1 bg-[#d4af37] mx-auto mt-3 rounded-full"></div></div>
+    <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+</section>
+
+<!-- Product Detail Page -->
+<section id="product-detail-section" class="max-w-6xl mx-auto px-4 py-12 hidden">
+    <button id="backToHomeBtn" class="btn-primary text-[#1b4d1f] px-4 py-2 rounded-lg mb-6 inline-block"><i class="fas fa-arrow-left mr-2"></i>Back to Products</button>
+    <div class="bg-white rounded-2xl p-6 shadow-md border border-[#e8dfc8]"><div id="detailContent"></div></div>
+    <div class="mt-8"><h3 class="text-2xl font-bold text-[#1b4d1f] mb-4"><i class="fas fa-link mr-2 text-[#d4af37]"></i>You May Also Like</h3><div id="relatedProductsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div></div>
+</section>
+
+<!-- Recommendations & Recently Viewed -->
+<section id="recommendations-section" class="max-w-7xl mx-auto px-4 py-8 border-t border-[#e8dfc8]"><h2 class="text-2xl font-bold text-[#1b4d1f] mb-6"><i class="fas fa-star text-[#d4af37] mr-2"></i>Recommended for You</h2><div id="recommendationsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"></div></section>
+<section id="recently-viewed-section" class="max-w-7xl mx-auto px-4 py-8 border-t border-[#e8dfc8]"><h2 class="text-2xl font-bold text-[#1b4d1f] mb-6"><i class="fas fa-history text-[#d4af37] mr-2"></i>Recently Viewed</h2><div id="recentlyViewedGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"></div></section>
+
+<!-- User Panel -->
+<section id="user-panel-section" class="max-w-4xl mx-auto px-4 py-12 hidden">
+    <div class="bg-white rounded-2xl p-6 shadow-md border border-[#e8dfc8]">
+        <h2 class="text-2xl font-bold border-b border-[#e8dfc8] pb-2 mb-4"><i class="fas fa-id-card text-[#d4af37] mr-2"></i>My Dashboard</h2>
+        <div id="userInfoDisplay"></div>
+        <div class="mt-6 bg-[#faf7f0] p-5 rounded-xl"><h3 class="font-semibold text-lg">📧 Contact & Social</h3><p>Official Contact Email: <span id="contactEmailSpan" class="font-mono text-[#d4af37]"></span></p><div id="socialLinksContainer" class="flex gap-4 mt-3"></div></div>
+    </div>
+</section>
+
+<!-- Admin Panel -->
+<section id="admin-panel-section" class="max-w-6xl mx-auto px-4 py-12 hidden">
+    <div class="bg-white rounded-2xl p-6 mb-8 shadow-md border border-[#e8dfc8]">
+        <h2 class="text-2xl font-bold text-[#1b4d1f]">🛠️ Product Management</h2>
+        <form id="productForm" class="grid md:grid-cols-2 gap-4 mt-5">
+            <input type="text" id="productName" placeholder="Product name" class="bg-gray-50 border border-[#e8dfc8] p-2 rounded-lg" required>
+            <input type="text" id="productCategory" placeholder="Category" class="bg-gray-50 border border-[#e8dfc8] p-2 rounded-lg" required>
+            <input type="number" step="1" id="productPrice" placeholder="Price (RWF)" class="bg-gray-50 border border-[#e8dfc8] p-2 rounded-lg" required>
+            <textarea id="productDesc" placeholder="Description" class="bg-gray-50 border border-[#e8dfc8] p-2 rounded-lg md:col-span-2"></textarea>
+            <div><label class="block text-sm mb-1">Size (comma separated)</label><input type="text" id="productSizes" placeholder="S, M, L, XL" class="bg-gray-50 border border-[#e8dfc8] p-2 rounded-lg w-full"></div>
+            <div><label class="block text-sm mb-1">Colors (comma separated)</label><input type="text" id="productColors" placeholder="Red, Blue, Black" class="bg-gray-50 border border-[#e8dfc8] p-2 rounded-lg w-full"></div>
+            <div><label class="block text-sm mb-1">Status</label><select id="productStock" class="bg-gray-50 border border-[#e8dfc8] p-2 rounded-lg w-full"><option value="available">In Stock</option><option value="sold">Out of Stock</option></select></div>
+            <div><label class="block text-sm mb-1">Quantity</label><input type="number" id="productQuantity" min="0" value="10" class="bg-gray-50 border border-[#e8dfc8] p-2 rounded-lg w-full"></div>
+            <div class="md:col-span-2">
+                <label class="block text-sm mb-1">Product Images (multiple, max 5)</label>
+                <input type="file" id="productImages" accept="image/*" multiple class="bg-gray-50 border border-[#e8dfc8] p-1 rounded-lg w-full">
+                <div id="existingImagesPreview" class="flex flex-wrap gap-2 mt-2"></div>
+                <p class="text-xs text-gray-500 mt-1">Select up to 5 images. On edit, new images replace existing ones.</p>
+            </div>
+            <div class="md:col-span-2 flex gap-3"><button type="submit" class="btn-primary text-[#1b4d1f] px-5 py-2 rounded-lg font-semibold"><span id="productFormTitle">➕ Add New Product</span></button><button type="button" id="cancelEdit" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-5 py-2 rounded-lg hidden">Cancel Edit</button></div>
+        </form>
+        <div class="mt-8"><h3 class="font-bold text-xl text-[#1b4d1f]">📋 Inventory</h3><div id="productListAdmin" class="mt-2 space-y-2"></div></div>
+    </div>
+    <div class="bg-white rounded-2xl p-6 mb-8 shadow-md border border-[#e8dfc8]"><h2 class="text-2xl font-bold text-[#1b4d1f] mb-4"><i class="fas fa-users mr-2"></i>Customer Orders</h2><div class="overflow-x-auto"><table id="ordersTable" class="w-full text-sm border border-[#e8dfc8]"><thead><tr class="border-b border-[#e8dfc8]"><th class="text-left p-2">Name</th><th class="text-left p-2">Email</th><th class="text-left p-2">Phone</th><th class="text-left p-2">Product</th><th class="text-left p-2">Qty</th><th class="text-left p-2">Location</th><th class="text-left p-2">Notes</th><th class="text-left p-2">Date</th></tr></thead><tbody id="ordersList"></tbody></table></div></div>
+    <div class="bg-white rounded-2xl p-6 mb-8 shadow-md border border-[#e8dfc8]"><h2 class="text-2xl font-bold text-[#1b4d1f] mb-4"><i class="fas fa-edit mr-2"></i>Edit Contact Information</h2><form id="contactSettingsForm" class="space-y-4"><div><label class="block text-sm mb-1">Instagram Profile URL</label><input type="url" id="adminInstagramUrl" placeholder="https://www.instagram.com/username" class="w-full bg-gray-50 border border-[#e8dfc8] p-2 rounded-lg"></div><div><label class="block text-sm mb-1">WhatsApp Phone Number (with country code)</label><input type="tel" id="adminPhoneNumber" placeholder="+250XXXXXXXXX" class="w-full bg-gray-50 border border-[#e8dfc8] p-2 rounded-lg"></div><div class="flex gap-3"><button type="submit" class="btn-primary text-[#1b4d1f] px-5 py-2 rounded-lg font-semibold">Save Changes</button><button type="button" id="resetContactBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-5 py-2 rounded-lg">Reset to Default</button></div></form></div>
+    <div class="grid md:grid-cols-2 gap-6"><div class="bg-white p-5 rounded-2xl shadow-md border border-[#e8dfc8]"><h3 class="text-xl font-bold mb-3 text-[#1b4d1f]">👥 Registered Users</h3><div class="overflow-auto max-h-72"><table id="userListAdmin" class="w-full text-sm"></table></div></div><div id="performanceStats" class="bg-white p-5 rounded-2xl shadow-md border border-[#e8dfc8]"></div></div>
+</section>
+
+<!-- Cart Sidebar -->
+<div id="cartOverlay" class="fixed inset-0 bg-black/30 z-40 hidden"></div>
+<div id="cartSidebar" class="fixed top-0 right-0 w-96 h-full bg-white shadow-xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col border-l border-[#e8dfc8]">
+    <div class="flex justify-between items-center p-5 border-b border-[#e8dfc8]"><h2 class="text-2xl font-bold text-[#1b4d1f]"><i class="fas fa-shopping-bag mr-2"></i>Your Cart</h2><button id="closeCart" class="text-3xl text-gray-400 hover:text-[#d4af37]">&times;</button></div>
+    <div id="cartItems" class="flex-1 overflow-y-auto p-4 text-gray-800"></div>
+    <div class="border-t border-[#e8dfc8] p-5 bg-[#faf7f0]"><div class="flex justify-between text-xl font-bold text-[#1b4d1f]">Total: <span id="cartTotal" class="text-[#d4af37]">0</span> RWF</div><button id="checkoutBtn" class="w-full btn-primary text-[#1b4d1f] py-3 mt-4 rounded-full font-semibold">Place Order</button></div>
+</div>
+
+<!-- Customer Order Modal -->
+<div id="customerModal" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-2xl max-w-2xl w-full p-6 relative border border-[#e8dfc8] max-h-[90vh] overflow-y-auto">
+        <button id="closeCustomerModal" class="absolute top-3 right-4 text-2xl text-gray-400 hover:text-[#d4af37]">&times;</button>
+        <h3 class="text-2xl font-bold text-[#1b4d1f] mb-4">Complete Your Order</h3>
+        <form id="customerOrderForm">
+            <input type="hidden" id="orderProductId"><input type="hidden" id="orderProductName"><input type="hidden" id="orderProductPrice"><input type="hidden" id="orderMaxQuantity">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input type="text" id="orderFullName" placeholder="Full Name *" required class="bg-gray-50 border border-[#e8dfc8] p-2 rounded-lg">
+                <input type="email" id="orderEmail" placeholder="Email Address *" required class="bg-gray-50 border border-[#e8dfc8] p-2 rounded-lg">
+                <input type="tel" id="orderPhone" placeholder="Phone Number *" required class="bg-gray-50 border border-[#e8dfc8] p-2 rounded-lg">
+                <input type="number" id="orderQuantity" placeholder="Quantity *" min="1" value="1" required class="bg-gray-50 border border-[#e8dfc8] p-2 rounded-lg">
+                <input type="text" id="orderLocation" placeholder="Delivery Address *" required class="bg-gray-50 border border-[#e8dfc8] p-2 rounded-lg md:col-span-2">
+                <textarea id="orderNotes" placeholder="Size / Color preferences" rows="3" class="bg-gray-50 border border-[#e8dfc8] p-2 rounded-lg md:col-span-2"></textarea>
+            </div>
+            <div class="mt-4 p-3 bg-[#faf7f0] rounded-lg"><p class="text-gray-700">Product: <span id="orderProductDisplay"></span></p><p class="text-gray-700">Price per unit: <span id="orderPriceDisplay"></span> RWF</p><p class="text-gray-700">Available: <span id="orderAvailableDisplay"></span></p></div>
+            <button type="submit" id="submitOrderBtn" class="w-full btn-primary text-[#1b4d1f] py-2 rounded-full font-semibold mt-4">Submit Order</button>
+        </form>
+    </div>
+</div>
+
+<!-- Login Required Modal -->
+<div id="loginRequiredModal" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 relative text-center border border-[#e8dfc8]">
+        <button id="closeLoginRequiredModal" class="absolute top-3 right-4 text-2xl text-gray-400 hover:text-[#d4af37]">&times;</button>
+        <i class="fas fa-lock text-5xl text-[#d4af37] mb-3"></i>
+        <h3 class="text-2xl font-bold text-[#1b4d1f] mb-2">Login Required</h3>
+        <p class="text-gray-600 mb-6">Please log in or create an account to place an order.</p>
+        <div class="flex gap-4 justify-center">
+            <button id="loginRequiredLoginBtn" class="btn-primary text-[#1b4d1f] px-5 py-2 rounded-full font-semibold">Login</button>
+            <button id="loginRequiredRegisterBtn" class="border border-[#d4af37] text-[#d4af37] px-5 py-2 rounded-full font-semibold hover:bg-[#d4af37]/10">Register</button>
+        </div>
+    </div>
+</div>
+
+<!-- Register Modal -->
+<div id="registerModal" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 relative border border-[#e8dfc8]">
+        <button id="closeRegModal" class="absolute top-3 right-4 text-2xl text-gray-400 hover:text-[#d4af37]">&times;</button>
+        <h3 class="text-2xl font-bold text-[#1b4d1f] mb-4">Create Account</h3>
+        <form id="regForm">
+            <input type="text" id="regFirstName" placeholder="First Name" class="w-full bg-gray-50 border border-[#e8dfc8] p-2 mb-3 rounded-lg" required>
+            <input type="text" id="regLastName" placeholder="Last Name" class="w-full bg-gray-50 border border-[#e8dfc8] p-2 mb-3 rounded-lg" required>
+            <input type="email" id="regEmail" placeholder="Email" class="w-full bg-gray-50 border border-[#e8dfc8] p-2 mb-3 rounded-lg" required>
+            <input type="password" id="regPassword" placeholder="Password (min 6 chars)" class="w-full bg-gray-50 border border-[#e8dfc8] p-2 mb-2 rounded-lg" required>
+            <div id="passwordStrength" class="password-strength"></div>
+            <p id="strengthText" class="text-xs mt-1 mb-3 text-gray-500"></p>
+            <input type="password" id="regConfirmPassword" placeholder="Confirm Password" class="w-full bg-gray-50 border border-[#e8dfc8] p-2 mb-4 rounded-lg" required>
+            <button type="submit" id="regSubmitBtn" class="w-full btn-primary text-[#1b4d1f] py-2 rounded-full font-semibold">Register</button>
+        </form>
+    </div>
+</div>
+
+<!-- Login Modal -->
+<div id="loginModal" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 relative border border-[#e8dfc8]">
+        <button id="closeLoginModal" class="absolute top-3 right-4 text-2xl text-gray-400 hover:text-[#d4af37]">&times;</button>
+        <h3 class="text-2xl font-bold text-[#1b4d1f] mb-4">Welcome Back</h3>
+        <form id="loginForm">
+            <input type="email" id="loginEmail" placeholder="Email Address" class="w-full bg-gray-50 border border-[#e8dfc8] p-2 mb-3 rounded-lg" required>
+            <input type="password" id="loginPassword" placeholder="Password" class="w-full bg-gray-50 border border-[#e8dfc8] p-2 mb-4 rounded-lg" required>
+            <button type="submit" id="loginSubmitBtn" class="w-full btn-primary text-[#1b4d1f] py-2 rounded-full font-semibold">Login</button>
+        </form>
+        <p class="text-center text-gray-500 text-sm mt-4">Don't have an account? <button id="switchToRegister" class="text-[#d4af37] hover:underline">Register here</button></p>
+    </div>
+</div>
+
+<script type="module">
+    // Firebase Configuration – YOUR ACTUAL KEYS
+    const firebaseConfig = {
+        apiKey: "AIzaSyCaI4433d3BSnrRRZu-j0ZNUwMxtnLUfLI",
+        authDomain: "nkundishusho.firebaseapp.com",
+        projectId: "nkundishusho",
+        storageBucket: "nkundishusho.firebasestorage.app",
+        messagingSenderId: "1013594569033",
+        appId: "1:1013594569033:web:77f7e46166c229e1bc8298",
+        measurementId: "G-979Y7MCFNE"
+    };
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+    import { getFirestore, collection, doc, setDoc, getDocs, getDoc, updateDoc, deleteDoc, addDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const IMGBB_API_KEY = "4fa8b99e2ba50cfe70cc9f69257055bb";
+
+    // Helper functions
+    const loader = document.getElementById('globalLoader');
+    const showLoader = () => loader.classList.remove('hidden');
+    const hideLoader = () => loader.classList.add('hidden');
+
+    function showMessage(msg, type = 'info') {
+        const container = document.getElementById('notificationContainer');
+        if (!container) return;
+        const notif = document.createElement('div');
+        notif.className = `notification notification-${type}`;
+        notif.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i><span>${escapeHtml(msg)}</span>`;
+        container.appendChild(notif);
+        setTimeout(() => notif.remove(), 4000);
+    }
+    function escapeHtml(s) { return s ? s.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])) : ''; }
+    function getFriendlyError(code) {
+        const map = {
+            'auth/email-already-in-use': 'This email is already registered. Please login instead.',
+            'auth/invalid-email': 'Please enter a valid email address.',
+            'auth/weak-password': 'Password must be at least 6 characters long.',
+            'auth/wrong-password': 'Incorrect password. Please try again.',
+            'auth/user-not-found': 'No account found with this email. Please register first.',
+            'auth/too-many-requests': 'Too many failed attempts. Please try again later.',
+            'auth/network-request-failed': 'Network error. Please check your connection.'
+        };
+        return map[code] || `Error: ${code}`;
+    }
+
+    // ImageBB upload
+    async function uploadImageToImgBB(file) {
+        const formData = new FormData();
+        formData.append('image', file);
+        formData.append('key', IMGBB_API_KEY);
+        const res = await fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: formData });
+        const data = await res.json();
+        if (data.success) return data.data.url;
+        throw new Error('Image upload failed: ' + (data.error?.message || 'Unknown error'));
+    }
+    async function uploadMultipleImages(files) {
+        const urls = [];
+        for (const file of files) {
+            try {
+                const url = await uploadImageToImgBB(file);
+                urls.push(url);
+                showMessage(`Uploaded: ${file.name}`, 'success');
+            } catch (error) {
+                showMessage(`Failed to upload ${file.name}: ${error.message}`, 'error');
+            }
+        }
+        return urls;
+    }
+
+    // Global state
+    let currentUser = null, userRole = 'guest', allProducts = [], filteredProducts = [], cart = [], editingId = null;
+    let recentlyViewedIds = JSON.parse(localStorage.getItem('nkundishushoViewed') || '[]');
+    let contactInfo = { instagramUrl: '', phoneNumber: '' };
+    let pendingProduct = null;
+
+    // Password strength
+    const regPassword = document.getElementById('regPassword');
+    const strengthBar = document.getElementById('passwordStrength');
+    const strengthText = document.getElementById('strengthText');
+    if (regPassword) {
+        regPassword.addEventListener('input', (e) => {
+            const pwd = e.target.value;
+            let strength = 0;
+            if (pwd.length >= 6) strength++;
+            if (pwd.length >= 10) strength++;
+            if (/[A-Z]/.test(pwd)) strength++;
+            if (/[0-9]/.test(pwd)) strength++;
+            if (/[^A-Za-z0-9]/.test(pwd)) strength++;
+            if (pwd.length === 0) {
+                strengthBar.className = 'password-strength';
+                strengthText.textContent = '';
+                return;
+            }
+            if (strength <= 2) {
+                strengthBar.className = 'password-strength strength-weak';
+                strengthText.textContent = 'Weak password';
+                strengthText.style.color = '#ef5350';
+            } else if (strength <= 4) {
+                strengthBar.className = 'password-strength strength-medium';
+                strengthText.textContent = 'Medium password';
+                strengthText.style.color = '#d4af37';
+            } else {
+                strengthBar.className = 'password-strength strength-strong';
+                strengthText.textContent = 'Strong password';
+                strengthText.style.color = '#2e7d32';
+            }
+        });
+    }
+
+    // Contact info
+    async function loadContactInfo() {
+        try {
+            const docRef = doc(db, "settings", "contactInfo");
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) contactInfo = docSnap.data();
+            else {
+                contactInfo = { instagramUrl: "https://www.instagram.com/nkundishusho", phoneNumber: "+250788888888" };
+                await setDoc(docRef, contactInfo);
+            }
+            const publicInstagramLink = document.getElementById('publicInstagramLink');
+            const publicPhoneNumber = document.getElementById('publicPhoneNumber');
+            const adminInstagramUrl = document.getElementById('adminInstagramUrl');
+            const adminPhoneNumber = document.getElementById('adminPhoneNumber');
+            if (publicInstagramLink) publicInstagramLink.innerHTML = `<a href="${contactInfo.instagramUrl}" target="_blank" class="text-[#d4af37] underline">${contactInfo.instagramUrl}</a>`;
+            if (publicPhoneNumber) publicPhoneNumber.innerHTML = `<a href="https://wa.me/${contactInfo.phoneNumber.replace(/\D/g,'')}" target="_blank" class="text-[#d4af37] underline">${contactInfo.phoneNumber}</a>`;
+            if (adminInstagramUrl) adminInstagramUrl.value = contactInfo.instagramUrl;
+            if (adminPhoneNumber) adminPhoneNumber.value = contactInfo.phoneNumber;
+            const navbarWhatsApp = document.querySelector('.navbar-contact-icons a[href*="wa.me"]');
+            if (navbarWhatsApp && contactInfo.phoneNumber) {
+                navbarWhatsApp.href = `https://wa.me/${contactInfo.phoneNumber.replace(/\D/g,'')}`;
+                const phoneSpan = navbarWhatsApp.querySelector('span:first-of-type');
+                if (phoneSpan) phoneSpan.textContent = contactInfo.phoneNumber;
+            }
+        } catch (err) { console.error(err); }
+    }
+    async function saveContactInfo(url, phone) {
+        showLoader();
+        try {
+            await setDoc(doc(db, "settings", "contactInfo"), { instagramUrl: url, phoneNumber: phone });
+            contactInfo = { instagramUrl: url, phoneNumber: phone };
+            const publicInstagramLink = document.getElementById('publicInstagramLink');
+            const publicPhoneNumber = document.getElementById('publicPhoneNumber');
+            if (publicInstagramLink) publicInstagramLink.innerHTML = `<a href="${contactInfo.instagramUrl}" target="_blank" class="text-[#d4af37] underline">${contactInfo.instagramUrl}</a>`;
+            if (publicPhoneNumber) publicPhoneNumber.innerHTML = `<a href="https://wa.me/${contactInfo.phoneNumber.replace(/\D/g,'')}" target="_blank" class="text-[#d4af37] underline">${contactInfo.phoneNumber}</a>`;
+            showMessage("Contact info updated", "success");
+        } catch (err) { showMessage("Update failed", "error"); }
+        finally { hideLoader(); }
+    }
+
+    // Cart
+    function saveCart() { localStorage.setItem('nkundishushoCart', JSON.stringify(cart)); updateCartUI(); }
+    function loadCart() { cart = JSON.parse(localStorage.getItem('nkundishushoCart') || '[]'); updateCartUI(); }
+    function updateCartUI() {
+        const cartItemsDiv = document.getElementById('cartItems');
+        const cartTotalSpan = document.getElementById('cartTotal');
+        const cartCountSpan = document.getElementById('cartCount');
+        let total = 0, count = 0;
+        cartItemsDiv.innerHTML = '';
+        if (!cart.length) cartItemsDiv.innerHTML = '<div class="text-center py-6 text-gray-400">Your cart is empty</div>';
+        else cart.forEach((item, idx) => {
+            total += item.price * item.quantity;
+            count += item.quantity;
+            const div = document.createElement('div');
+            div.className = 'flex gap-3 border-b border-gray-200 pb-3 mb-3';
+            div.innerHTML = `<img src="${item.images?.[0] || 'https://via.placeholder.com/60'}" class="w-14 h-14 object-cover rounded"><div class="flex-1"><b class="text-[#1b4d1f]">${escapeHtml(item.name)}</b><br>${item.price.toLocaleString()} RWF<div class="flex gap-2 mt-1"><button class="cart-dec" data-idx="${idx}">-</button><span>${item.quantity}</span><button class="cart-inc" data-idx="${idx}">+</button><button class="cart-del text-red-500 ml-1" data-idx="${idx}">🗑</button></div></div><div class="text-[#d4af37]">${(item.price * item.quantity).toLocaleString()} RWF</div>`;
+            cartItemsDiv.appendChild(div);
+        });
+        cartTotalSpan.innerText = total.toLocaleString();
+        cartCountSpan.innerText = count;
+        document.querySelectorAll('.cart-dec, .cart-inc, .cart-del').forEach(btn => {
+            btn.onclick = () => {
+                const i = parseInt(btn.dataset.idx);
+                if (btn.classList.contains('cart-dec')) { if (cart[i].quantity > 1) cart[i].quantity--; else cart.splice(i,1); }
+                else if (btn.classList.contains('cart-inc')) cart[i].quantity++;
+                else if (btn.classList.contains('cart-del')) cart.splice(i,1);
+                saveCart();
+                applyFiltersAndRender();
+            };
+        });
+    }
+    const checkoutBtn = document.getElementById('checkoutBtn');
+    if (checkoutBtn) {
+        checkoutBtn.onclick = () => {
+            if (cart.length === 0) { showMessage("Your cart is empty", "error"); return; }
+            showMessage("Order placed! We'll contact you soon.", "success");
+            cart = [];
+            saveCart();
+            document.getElementById('cartSidebar').classList.add('translate-x-full');
+            document.getElementById('cartOverlay').classList.add('hidden');
+        };
+    }
+
+    // Order
+    async function initiateOrder(product) {
+        if (!currentUser) { pendingProduct = product; document.getElementById('loginRequiredModal').classList.remove('hidden'); return; }
+        if (product.stock === 'sold' || product.quantity <= 0) { showMessage("This product is out of stock.", "warning"); return; }
+        document.getElementById('orderProductId').value = product.id;
+        document.getElementById('orderProductName').value = product.name;
+        document.getElementById('orderProductPrice').value = product.price;
+        document.getElementById('orderMaxQuantity').value = product.quantity;
+        document.getElementById('orderProductDisplay').innerText = product.name;
+        document.getElementById('orderPriceDisplay').innerText = product.price.toLocaleString();
+        document.getElementById('orderAvailableDisplay').innerText = product.quantity;
+        const qtyInput = document.getElementById('orderQuantity');
+        qtyInput.max = product.quantity;
+        qtyInput.value = 1;
+        document.getElementById('customerModal').classList.remove('hidden');
+    }
+    async function submitOrderAndAddToCart(e) {
+        e.preventDefault();
+        const fullName = document.getElementById('orderFullName').value.trim();
+        const email = document.getElementById('orderEmail').value.trim();
+        const phone = document.getElementById('orderPhone').value.trim();
+        let quantity = parseInt(document.getElementById('orderQuantity').value);
+        const location = document.getElementById('orderLocation').value.trim();
+        const notes = document.getElementById('orderNotes').value.trim();
+        const productId = document.getElementById('orderProductId').value;
+        const productName = document.getElementById('orderProductName').value;
+        const productPrice = parseFloat(document.getElementById('orderProductPrice').value);
+        const maxQuantity = parseInt(document.getElementById('orderMaxQuantity').value);
+        if (!fullName || !email || !phone || !quantity || !location) { showMessage("Please fill all required fields", "error"); return; }
+        if (quantity > maxQuantity) { showMessage(`Only ${maxQuantity} item(s) available.`, "error"); return; }
+        showLoader();
+        try {
+            await addDoc(collection(db, "orders"), { fullName, email, phone, productId, productName, productPrice, quantity, location, notes, createdAt: new Date(), totalPrice: productPrice * quantity });
+            const productRef = doc(db, "products", productId);
+            const newQuantity = maxQuantity - quantity;
+            await updateDoc(productRef, { quantity: newQuantity, stock: newQuantity > 0 ? 'available' : 'sold' });
+            const productIndex = allProducts.findIndex(p => p.id === productId);
+            if (productIndex !== -1) { allProducts[productIndex].quantity = newQuantity; allProducts[productIndex].stock = newQuantity > 0 ? 'available' : 'sold'; }
+            let existing = cart.find(i => i.id === productId);
+            if (existing) existing.quantity += quantity;
+            else cart.push({ id: productId, name: productName, price: productPrice, images: (allProducts.find(p=>p.id===productId)?.images) || [], quantity: quantity });
+            saveCart();
+            document.getElementById('customerModal').classList.add('hidden');
+            document.getElementById('customerOrderForm').reset();
+            showMessage(`Order placed! ${productName} added to your cart.`, "success");
+            refreshAll();
+            if (userRole === 'admin') await renderAdminList();
+        } catch (err) { showMessage("Failed: " + err.message, "error"); }
+        finally { hideLoader(); }
+    }
+
+    // Product display
+    function showProductDetail(productId) {
+        const product = allProducts.find(p => p.id === productId);
+        if (!product) return;
+        const statusBadge = product.stock === 'available' ? '<span class="status-available px-3 py-1 rounded-full text-sm"><i class="fas fa-check-circle mr-1"></i>In Stock</span>' : '<span class="status-sold px-3 py-1 rounded-full text-sm"><i class="fas fa-times-circle mr-1"></i>Out of Stock</span>';
+        const orderBtn = (product.stock === 'available' && product.quantity > 0) ? `<button class="add-to-cart-detail btn-primary text-[#1b4d1f] px-6 py-2 rounded-full font-semibold mt-6" data-id="${product.id}"><i class="fas fa-cart-plus mr-2"></i>Add to Cart</button>` : `<button class="bg-gray-300 text-gray-500 px-6 py-2 rounded-full font-semibold mt-6" disabled><i class="fas fa-times-circle mr-2"></i>Out of Stock</button>`;
+        const imagesHtml = product.images && product.images.length ? `<div class="detail-image-grid">${product.images.map(img => `<img src="${img}" class="detail-main-img rounded-lg shadow-md">`).join('')}</div>` : `<img src="https://via.placeholder.com/400" class="detail-main-img rounded-lg">`;
+        const sizeInfo = product.sizes ? `<div class="flex flex-wrap gap-2 mt-2"><span class="text-sm text-[#1b4d1f]">Sizes:</span> ${product.sizes.split(',').map(s => `<span class="bg-[#faf7f0] px-2 py-1 rounded-full text-xs">${s.trim()}</span>`).join('')}</div>` : '';
+        const colorInfo = product.colors ? `<div class="flex flex-wrap gap-2 mt-1"><span class="text-sm text-[#1b4d1f]">Colors:</span> ${product.colors.split(',').map(c => `<span class="bg-[#faf7f0] px-2 py-1 rounded-full text-xs">${c.trim()}</span>`).join('')}</div>` : '';
+        const extraInfo = `<div class="mt-3"><span class="info-item"><i class="fas fa-tag"></i> ${product.category || 'Uncategorized'}</span> ${sizeInfo} ${colorInfo}</div>`;
+        document.getElementById('detailContent').innerHTML = `<div class="grid md:grid-cols-2 gap-8"><div>${imagesHtml}</div><div><h2 class="text-3xl font-bold text-[#1b4d1f]">${escapeHtml(product.name)}</h2><p class="price-large mt-2">${product.price.toLocaleString()} RWF</p><div class="mt-2">${statusBadge}</div>${extraInfo}<p class="text-gray-600 mt-4">${escapeHtml(product.description || 'Beautiful addition to your wardrobe.')}</p>${orderBtn}</div></div>`;
+        if (product.stock === 'available' && product.quantity > 0) {
+            document.querySelector('.add-to-cart-detail')?.addEventListener('click', (e) => { e.stopPropagation(); initiateOrder(product); });
+        }
+        const related = allProducts.filter(p => p.id !== product.id).sort(() => 0.5 - Math.random()).slice(0, 3);
+        document.getElementById('relatedProductsGrid').innerHTML = related.map(p => productCardTemplate(p)).join('');
+        document.querySelectorAll('#relatedProductsGrid .product-card').forEach(card => { card.onclick = () => showProductDetail(card.dataset.id); });
+        document.getElementById('home-section').classList.add('hidden');
+        document.getElementById('user-panel-section').classList.add('hidden');
+        document.getElementById('admin-panel-section').classList.add('hidden');
+        document.getElementById('contact-section').classList.add('hidden');
+        document.getElementById('product-detail-section').classList.remove('hidden');
+        document.getElementById('product-detail-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        addRecentlyViewed(product.id);
+    }
+    function productCardTemplate(p) {
+        const img = (p.images && p.images.length) ? p.images[0] : 'https://via.placeholder.com/300';
+        const hasStock = (p.stock === 'available' && p.quantity > 0);
+        const statusBadge = hasStock ? `<span class="absolute top-2 right-2 status-available text-xs px-2 py-1 rounded-full">In Stock</span>` : `<span class="absolute top-2 right-2 status-sold text-xs px-2 py-1 rounded-full">Out of Stock</span>`;
+        const orderBtn = hasStock ? `<button class="add-cart-trigger btn-primary text-[#1b4d1f] font-semibold px-4 py-2 rounded-full text-sm" data-id="${p.id}"><i class="fas fa-cart-plus mr-1"></i> Buy</button>` : `<button class="bg-gray-300 text-gray-500 font-semibold px-4 py-2 rounded-full text-sm cursor-not-allowed" disabled>Sold Out</button>`;
+        const categoryBadge = p.category ? `<div class="text-xs text-[#d4af37] mt-1">${escapeHtml(p.category)}</div>` : '';
+        return `<div class="product-card bg-white rounded-2xl shadow-md overflow-hidden cursor-pointer relative" data-id="${p.id}">${statusBadge}<img src="${img}" class="h-56 w-full object-cover" loading="lazy"><div class="p-4"><h3 class="font-bold text-xl text-[#1b4d1f]">${escapeHtml(p.name)}</h3>${categoryBadge}<div class="flex justify-between items-center mt-2"><span class="text-[#1b4d1f] font-bold text-lg">${p.price.toLocaleString()} RWF</span>${orderBtn}</div></div></div>`;
+    }
+    function attachProductEvents(container) {
+        container.querySelectorAll('.product-card').forEach(card => {
+            card.onclick = (e) => {
+                if (e.target.classList.contains('add-cart-trigger') || e.target.closest('.add-cart-trigger') || e.target.disabled) return;
+                showProductDetail(card.dataset.id);
+            };
+        });
+        container.querySelectorAll('.add-cart-trigger').forEach(btn => {
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                const prod = allProducts.find(p => p.id === btn.dataset.id);
+                if (prod && prod.stock === 'available' && prod.quantity > 0) initiateOrder(prod);
+                else showMessage("This product is out of stock.", "warning");
+            };
+        });
+    }
+    function addRecentlyViewed(productId) {
+        recentlyViewedIds = recentlyViewedIds.filter(id => id !== productId);
+        recentlyViewedIds.unshift(productId);
+        if (recentlyViewedIds.length > 6) recentlyViewedIds.pop();
+        localStorage.setItem('nkundishushoViewed', JSON.stringify(recentlyViewedIds));
+        renderRecentlyViewed();
+    }
+    function renderRecentlyViewed() {
+        const grid = document.getElementById('recentlyViewedGrid');
+        if (!grid) return;
+        const recent = allProducts.filter(p => recentlyViewedIds.includes(p.id));
+        grid.innerHTML = recent.length ? recent.map(p => productCardTemplate(p)).join('') : '<div class="col-span-full text-center text-gray-500 py-8">No recently viewed</div>';
+        attachProductEvents(grid);
+    }
+    function renderRecommendations() {
+        const grid = document.getElementById('recommendationsGrid');
+        if (!grid) return;
+        let recs = [...allProducts];
+        if (cart.length) recs = recs.filter(p => !cart.some(c => c.id === p.id));
+        recs = recs.sort(() => 0.5 - Math.random()).slice(0, 3);
+        if (!recs.length) recs = allProducts.slice(0, 3);
+        grid.innerHTML = recs.map(p => productCardTemplate(p)).join('');
+        attachProductEvents(grid);
+    }
+    function applyFiltersAndRender() {
+        let filtered = [...allProducts];
+        const searchInput = document.getElementById('searchInput');
+        const search = searchInput.value.toLowerCase();
+        if (search) filtered = filtered.filter(p => p.name.toLowerCase().includes(search) || (p.category && p.category.toLowerCase().includes(search)));
+        const minPrice = document.getElementById('minPrice');
+        const min = parseFloat(minPrice.value);
+        if (!isNaN(min)) filtered = filtered.filter(p => p.price >= min);
+        const maxPrice = document.getElementById('maxPrice');
+        const max = parseFloat(maxPrice.value);
+        if (!isNaN(max)) filtered = filtered.filter(p => p.price <= max);
+        const sortSelect = document.getElementById('sortSelect');
+        const sort = sortSelect.value;
+        if (sort === 'price_asc') filtered.sort((a,b) => a.price - b.price);
+        else if (sort === 'price_desc') filtered.sort((a,b) => b.price - a.price);
+        filteredProducts = filtered;
+        const grid = document.getElementById('productsGrid');
+        grid.innerHTML = filteredProducts.length ? filteredProducts.map(p => productCardTemplate(p)).join('') : '<div class="col-span-full text-center text-gray-500 py-10">No products found</div>';
+        attachProductEvents(grid);
+        renderRecommendations();
+    }
+    function refreshAll() { applyFiltersAndRender(); renderRecentlyViewed(); renderRecommendations(); }
+
+    // Admin CRUD
+    async function fetchProducts() {
+        showLoader();
+        try {
+            const snap = await getDocs(collection(db, "products"));
+            allProducts = snap.docs.map(d => ({ id: d.id, ...d.data(), stock: d.data().stock || 'available', quantity: d.data().quantity !== undefined ? d.data().quantity : 10, category: d.data().category || '', sizes: d.data().sizes || '', colors: d.data().colors || '' }));
+            refreshAll();
+            if (userRole === 'admin') { await renderAdminList(); await fetchUsers(); await fetchOrders(); }
+        } catch(e) { showMessage('Failed to load products', 'error'); }
+        finally { hideLoader(); }
+    }
+    async function renderAdminList() {
+        const productList = document.getElementById('productListAdmin');
+        if (!productList) return;
+        if (!allProducts.length) { productList.innerHTML = '<div class="text-gray-500">No products</div>'; return; }
+        productList.innerHTML = allProducts.map(p => `<div class="flex justify-between items-center border-b border-gray-200 py-2"><div class="flex items-center gap-2"><img src="${p.images?.[0] || 'https://via.placeholder.com/40'}" class="w-8 h-8 object-cover rounded"><div><span class="text-gray-800"><strong class="text-[#1b4d1f]">${escapeHtml(p.name)}</strong> - ${p.price.toLocaleString()} RWF</span><div class="text-xs text-gray-500">${p.category || 'No category'}</div></div><span class="ml-2 ${p.stock === 'available' ? 'text-green-600' : 'text-red-500'} text-xs">${p.stock === 'available' ? `In stock (${p.quantity})` : 'Out of stock'}</span></div><div><button class="edit-prod bg-[#d4af37] text-[#1b4d1f] px-2 py-1 rounded text-sm mr-1 font-semibold" data-id="${p.id}">Edit</button><button class="del-prod bg-red-500 text-white px-2 py-1 rounded text-sm" data-id="${p.id}">Del</button></div></div>`).join('');
+        productList.querySelectorAll('.edit-prod').forEach(btn => btn.onclick = () => openEdit(btn.dataset.id));
+        productList.querySelectorAll('.del-prod').forEach(btn => btn.onclick = async () => { if (confirm('Delete product?')) await deleteProduct(btn.dataset.id); });
+    }
+    async function deleteProduct(id) {
+        showLoader();
+        try {
+            await deleteDoc(doc(db, "products", id));
+            showMessage('Product deleted', 'success');
+            await fetchProducts();
+            if (userRole === 'admin') await fetchUsers();
+        } catch(e) { showMessage('Delete failed', 'error'); }
+        finally { hideLoader(); }
+    }
+    async function openEdit(id) {
+        const prod = allProducts.find(p => p.id === id);
+        if (!prod) return;
+        editingId = id;
+        document.getElementById('productName').value = prod.name;
+        document.getElementById('productCategory').value = prod.category || '';
+        document.getElementById('productPrice').value = prod.price;
+        document.getElementById('productDesc').value = prod.description || '';
+        document.getElementById('productStock').value = prod.stock;
+        document.getElementById('productQuantity').value = prod.quantity;
+        document.getElementById('productSizes').value = prod.sizes || '';
+        document.getElementById('productColors').value = prod.colors || '';
+        document.getElementById('productFormTitle').innerText = '✏️ Update Product';
+        document.getElementById('cancelEdit').classList.remove('hidden');
+        const previewDiv = document.getElementById('existingImagesPreview');
+        if (previewDiv && prod.images) {
+            previewDiv.innerHTML = prod.images.map(url => `<div class="existing-image-item"><img src="${url}" class="image-preview"><span class="remove-image-btn" data-url="${url}">×</span></div>`).join('');
+        }
+    }
+    function resetEdit() {
+        editingId = null;
+        document.getElementById('productForm').reset();
+        document.getElementById('productStock').value = 'available';
+        document.getElementById('productQuantity').value = 10;
+        document.getElementById('productFormTitle').innerText = '➕ Add New Product';
+        document.getElementById('cancelEdit').classList.add('hidden');
+        document.getElementById('existingImagesPreview').innerHTML = '';
+    }
+    document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('remove-image-btn')) {
+            e.target.parentElement.remove();
+        }
+    });
+    const productForm = document.getElementById('productForm');
+    productForm.onsubmit = async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('productName').value.trim();
+        const category = document.getElementById('productCategory').value.trim();
+        const price = parseInt(document.getElementById('productPrice').value);
+        const desc = document.getElementById('productDesc').value.trim();
+        const stock = document.getElementById('productStock').value;
+        const quantity = parseInt(document.getElementById('productQuantity').value);
+        const sizes = document.getElementById('productSizes').value.trim();
+        const colors = document.getElementById('productColors').value.trim();
+        const files = Array.from(document.getElementById('productImages').files);
+        if (!name || isNaN(price)) { showMessage('Name and valid price required', 'error'); return; }
+        showLoader();
+        try {
+            let images = [];
+            const existingPreviews = document.querySelectorAll('#existingImagesPreview .existing-image-item img');
+            for (const img of existingPreviews) { if (img.src) images.push(img.src); }
+            if (files.length > 0) {
+                const newUrls = await uploadMultipleImages(files);
+                images.push(...newUrls);
+            }
+            if (images.length === 0) { showMessage('Please add at least one image', 'error'); hideLoader(); return; }
+            const productData = { name, category, price, description: desc, images, stock, quantity, sizes, colors, updatedAt: new Date() };
+            if (editingId) {
+                await updateDoc(doc(db, "products", editingId), productData);
+                showMessage('Product updated', 'success');
+            } else {
+                await addDoc(collection(db, "products"), { ...productData, createdAt: new Date() });
+                showMessage('Product added', 'success');
+            }
+            resetEdit();
+            document.getElementById('productImages').value = '';
+            await fetchProducts();
+            if (userRole === 'admin') await fetchUsers();
+        } catch(err) { showMessage('Upload error: ' + err.message, 'error'); }
+        finally { hideLoader(); }
+    };
+    document.getElementById('cancelEdit').onclick = resetEdit;
+    document.getElementById('productImages').addEventListener('change', (e) => {
+        const files = Array.from(e.target.files);
+        const previewDiv = document.getElementById('existingImagesPreview');
+        for (const file of files) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const imgContainer = document.createElement('div');
+                imgContainer.className = 'existing-image-item';
+                imgContainer.innerHTML = `<img src="${event.target.result}" class="image-preview"><span class="remove-image-btn">×</span>`;
+                previewDiv.appendChild(imgContainer);
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    async function fetchUsers() {
+        const userTable = document.getElementById('userListAdmin');
+        if (!userTable) return;
+        try {
+            const snap = await getDocs(collection(db, "users"));
+            let html = `</tr><th class="text-left text-[#1b4d1f]">Name</th><th class="text-left text-[#1b4d1f]">Email</th><th class="text-left text-[#1b4d1f]">Role</th>`;
+            snap.forEach(d => { const data = d.data(); html += `<tr><td class="py-1">${escapeHtml(data.firstName||'')} ${escapeHtml(data.lastName||'')}</td><td class="py-1">${escapeHtml(data.email)}</td><td class="py-1">${escapeHtml(data.role||'user')}</td>`; });
+            userTable.innerHTML = html;
+            const perfStats = document.getElementById('performanceStats');
+            if (perfStats) perfStats.innerHTML = `<div class="p-3"><p class="font-semibold text-[#1b4d1f]">📊 Performance</p><p>Users: ${snap.size}</p><p>Products: ${allProducts.length}</p><p>Orders: ${cart.reduce((a,b)=>a+b.quantity,0)}</p></div>`;
+        } catch(e) { console.warn(e); }
+    }
+    async function fetchOrders() {
+        const ordersList = document.getElementById('ordersList');
+        if (!ordersList) return;
+        try {
+            const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
+            const snap = await getDocs(q);
+            if (snap.empty) { ordersList.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-gray-500">No orders yet</td></tr>'; return; }
+            let html = '';
+            snap.forEach(doc => {
+                const o = doc.data();
+                html += `<tr class="border-b border-gray-200"><td class="p-2">${escapeHtml(o.fullName)}</td><td class="p-2">${escapeHtml(o.email)}</td><td class="p-2">${escapeHtml(o.phone)}</td><td class="p-2">${escapeHtml(o.productName)}</td><td class="p-2">${o.quantity}</td><td class="p-2">${escapeHtml(o.location)}</td><td class="p-2">${escapeHtml(o.notes || '')}</td><td class="p-2">${new Date(o.createdAt?.toDate()).toLocaleString()}</td></tr>`;
+            });
+            ordersList.innerHTML = html;
+        } catch(e) { console.warn(e); ordersList.innerHTML = '<tr><td colspan="8" class="text-center text-red-500">Error loading orders</td></tr>'; }
+    }
+
+    // Auth
+    async function register(email, pwd, first, last) {
+        if (pwd.length < 6) { showMessage('Password must be at least 6 characters long', 'error'); return; }
+        showLoader();
+        const regSubmitBtn = document.getElementById('regSubmitBtn');
+        if (regSubmitBtn) regSubmitBtn.classList.add('loading-btn');
+        try {
+            const cred = await createUserWithEmailAndPassword(auth, email, pwd);
+            const role = email === 'admin@nkundishusho.com' ? 'admin' : 'user';
+            await setDoc(doc(db, "users", cred.user.uid), { firstName: first, lastName: last, email, role, createdAt: new Date() });
+            showMessage(`Welcome ${first}! Your account has been created.`, 'success');
+            document.getElementById('registerModal').classList.add('hidden');
+            if (pendingProduct) { initiateOrder(pendingProduct); pendingProduct = null; }
+        } catch(err) { showMessage(getFriendlyError(err.code), 'error'); }
+        finally { hideLoader(); if (regSubmitBtn) regSubmitBtn.classList.remove('loading-btn'); }
+    }
+    async function login(email, pwd) {
+        showLoader();
+        const loginSubmitBtn = document.getElementById('loginSubmitBtn');
+        if (loginSubmitBtn) loginSubmitBtn.classList.add('loading-btn');
+        try {
+            await signInWithEmailAndPassword(auth, email, pwd);
+            showMessage('Login successful! Welcome back.', 'success');
+            document.getElementById('loginModal').classList.add('hidden');
+            if (pendingProduct) { initiateOrder(pendingProduct); pendingProduct = null; }
+        } catch(err) { showMessage(getFriendlyError(err.code), 'error'); }
+        finally { hideLoader(); if (loginSubmitBtn) loginSubmitBtn.classList.remove('loading-btn'); }
+    }
+    function logout() { signOut(auth); showMessage('Logged out successfully', 'success'); showHome(); pendingProduct = null; }
+
+    // Navigation
+    function showHome() {
+        setActiveSection(document.getElementById('home-section'), [
+            document.getElementById('user-panel-section'),
+            document.getElementById('admin-panel-section'),
+            document.getElementById('contact-section'),
+            document.getElementById('product-detail-section')
+        ]);
+        fetchProducts();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    function showContact() { setActiveSection(document.getElementById('contact-section'), [document.getElementById('home-section'), document.getElementById('user-panel-section'), document.getElementById('admin-panel-section'), document.getElementById('product-detail-section')]); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+    function showUser() { if (!currentUser) { showMessage('Please login first', 'error'); return; } setActiveSection(document.getElementById('user-panel-section'), [document.getElementById('home-section'), document.getElementById('admin-panel-section'), document.getElementById('contact-section'), document.getElementById('product-detail-section')]); loadProfile(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+    function showAdmin() { if (userRole !== 'admin') { showMessage('Admin only', 'error'); return; } setActiveSection(document.getElementById('admin-panel-section'), [document.getElementById('home-section'), document.getElementById('user-panel-section'), document.getElementById('contact-section'), document.getElementById('product-detail-section')]); fetchProducts(); fetchUsers(); fetchOrders(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+    function setActiveSection(active, others) { active.classList.remove('hidden'); others.forEach(s => s.classList.add('hidden')); }
+    async function loadProfile() {
+        if (!currentUser) return;
+        try {
+            const snap = await getDoc(doc(db, "users", currentUser.uid));
+            if (snap.exists()) {
+                const d = snap.data();
+                document.getElementById('userInfoDisplay').innerHTML = `<div class="p-4 bg-[#faf7f0] rounded-xl"><strong class="text-[#1b4d1f]">${escapeHtml(d.firstName)} ${escapeHtml(d.lastName)}</strong><br>${escapeHtml(d.email)}<br>Role: ${escapeHtml(d.role)}</div>`;
+                document.getElementById('contactEmailSpan').innerText = d.email;
+            } else document.getElementById('userInfoDisplay').innerHTML = '<p>Profile error</p>';
+        } catch(e) { showMessage('Profile load error', 'error'); }
+    }
+    function updateNav() {
+        const logged = !!currentUser;
+        document.getElementById('registerBtn').classList.toggle('hidden', logged);
+        document.getElementById('loginBtn').classList.toggle('hidden', logged);
+        document.getElementById('logoutBtn').classList.toggle('hidden', !logged);
+        document.querySelector('[data-nav="user"]').classList.toggle('hidden', !logged);
+        document.querySelector('[data-nav="admin"]').classList.toggle('hidden', userRole !== 'admin');
+    }
+    onAuthStateChanged(auth, async (user) => {
+        currentUser = user;
+        if (user) {
+            try { const snap = await getDoc(doc(db, "users", user.uid)); userRole = snap.exists() ? snap.data().role : (user.email === 'admin@nkundishusho.com' ? 'admin' : 'user'); }
+            catch(e) { userRole = 'user'; }
+        } else userRole = 'guest';
+        updateNav();
+        if (userRole === 'admin') document.querySelector('[data-nav="admin"]').classList.remove('hidden');
+        if (currentUser && !document.getElementById('user-panel-section').classList.contains('hidden')) loadProfile();
+        fetchProducts();
+    });
+
+    // Event bindings
+    const closeModal = (m) => m.classList.add('hidden');
+    const openModal = (m) => m.classList.remove('hidden');
+    document.querySelector('[data-nav="home"]').onclick = showHome;
+    document.querySelector('[data-nav="contact"]').onclick = showContact;
+    document.querySelector('[data-nav="user"]').onclick = showUser;
+    document.querySelector('[data-nav="admin"]').onclick = showAdmin;
+    document.getElementById('registerBtn').onclick = () => openModal(document.getElementById('registerModal'));
+    document.getElementById('loginBtn').onclick = () => openModal(document.getElementById('loginModal'));
+    document.getElementById('logoutBtn').onclick = logout;
+    document.getElementById('closeRegModal').onclick = () => closeModal(document.getElementById('registerModal'));
+    document.getElementById('closeLoginModal').onclick = () => closeModal(document.getElementById('loginModal'));
+    document.getElementById('cartIconBtn').onclick = () => { document.getElementById('cartSidebar').classList.remove('translate-x-full'); document.getElementById('cartOverlay').classList.remove('hidden'); };
+    document.getElementById('closeCart').onclick = () => { document.getElementById('cartSidebar').classList.add('translate-x-full'); document.getElementById('cartOverlay').classList.add('hidden'); };
+    document.getElementById('cartOverlay').onclick = () => { document.getElementById('cartSidebar').classList.add('translate-x-full'); document.getElementById('cartOverlay').classList.add('hidden'); };
+    document.getElementById('regForm').onsubmit = (e) => {
+        e.preventDefault();
+        const pwd = document.getElementById('regPassword').value;
+        const cp = document.getElementById('regConfirmPassword').value;
+        if (pwd !== cp) { showMessage('Passwords do not match', 'error'); return; }
+        register(document.getElementById('regEmail').value, pwd, document.getElementById('regFirstName').value, document.getElementById('regLastName').value);
+    };
+    document.getElementById('loginForm').onsubmit = (e) => { e.preventDefault(); login(document.getElementById('loginEmail').value, document.getElementById('loginPassword').value); };
+    document.getElementById('socialLinksContainer').innerHTML = `<a href="https://www.instagram.com/nkundishusho" target="_blank" class="text-pink-600 text-2xl"><i class="fab fa-instagram"></i></a> <a href="https://wa.me/250788888888" target="_blank" class="text-green-600 text-2xl"><i class="fab fa-whatsapp"></i></a> <a href="#" class="text-blue-500 text-2xl"><i class="fab fa-twitter"></i></a>`;
+    document.getElementById('searchInput').addEventListener('input', () => applyFiltersAndRender());
+    document.getElementById('sortSelect').addEventListener('change', () => applyFiltersAndRender());
+    document.getElementById('minPrice').addEventListener('input', () => applyFiltersAndRender());
+    document.getElementById('maxPrice').addEventListener('input', () => applyFiltersAndRender());
+    document.getElementById('resetFiltersBtn').onclick = () => {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('sortSelect').value = 'default';
+        document.getElementById('minPrice').value = '';
+        document.getElementById('maxPrice').value = '';
+        applyFiltersAndRender();
+    };
+    document.getElementById('heroShopBtn')?.addEventListener('click', () => document.getElementById('productsGrid')?.scrollIntoView({ behavior: 'smooth' }));
+    document.getElementById('heroExploreBtn')?.addEventListener('click', () => document.getElementById('contact-section')?.scrollIntoView({ behavior: 'smooth' }));
+    document.getElementById('backToHomeBtn').onclick = showHome;
+    document.getElementById('closeCustomerModal').onclick = () => document.getElementById('customerModal').classList.add('hidden');
+    document.getElementById('customerOrderForm').onsubmit = submitOrderAndAddToCart;
+    document.getElementById('closeLoginRequiredModal').onclick = () => { document.getElementById('loginRequiredModal').classList.add('hidden'); pendingProduct = null; };
+    document.getElementById('loginRequiredLoginBtn').onclick = () => { document.getElementById('loginRequiredModal').classList.add('hidden'); openModal(document.getElementById('loginModal')); };
+    document.getElementById('loginRequiredRegisterBtn').onclick = () => { document.getElementById('loginRequiredModal').classList.add('hidden'); openModal(document.getElementById('registerModal')); };
+    document.getElementById('switchToRegister').onclick = () => { closeModal(document.getElementById('loginModal')); openModal(document.getElementById('registerModal')); };
+    const contactForm = document.getElementById('contactSettingsForm');
+    if (contactForm) {
+        contactForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const url = document.getElementById('adminInstagramUrl').value.trim();
+            const phone = document.getElementById('adminPhoneNumber').value.trim();
+            if (!url || !phone) { showMessage('Both fields required', 'error'); return; }
+            await saveContactInfo(url, phone);
+        };
+    }
+    document.getElementById('resetContactBtn')?.addEventListener('click', async () => {
+        await saveContactInfo("https://www.instagram.com/nkundishusho", "+250788888888");
+    });
+
+    loadCart();
+    loadContactInfo();
+    fetchProducts();
+    showHome();
+</script>
+</body>
+</html>
